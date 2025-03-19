@@ -56,6 +56,16 @@ const PlayerSelection = () => {
   const needsNonStriker = match.nonStriker === undefined;
   const needsBowler = match.currentBowler === undefined;
   
+  const isReplacementAfterWicket = needsStriker && !needsNonStriker && match.currentBowler !== undefined;
+  
+  // Display more specific title text when replacing a batsman
+  const getTitleText = () => {
+    if (isReplacementAfterWicket) {
+      return 'New Batsman';
+    }
+    return match.currentInnings === 1 ? 'First Innings' : 'Second Innings';
+  };
+  
   // Filter out the striker from non-striker options
   const nonStrikerOptions = availableBatsmen.filter(p => 
     p.id.toString() !== selectedStrikerId
@@ -72,7 +82,7 @@ const PlayerSelection = () => {
       <Card className="p-6 bg-white/90 backdrop-blur-lg shadow-lg border border-gray-100 rounded-xl">
         <div className="text-center mb-6">
           <h2 className="text-2xl font-bold text-gray-900">
-            {match.currentInnings === 1 ? 'First Innings' : 'Second Innings'}
+            {getTitleText()}
           </h2>
           <p className="text-gray-600 mt-1">
             {match.battingTeam.name} batting · {match.bowlingTeam.name} bowling
@@ -82,6 +92,14 @@ const PlayerSelection = () => {
             <div className="mt-3 p-2 bg-cricket-pitch/30 rounded-lg inline-block">
               <p className="font-medium text-gray-800">
                 Target: {match.target} runs
+              </p>
+            </div>
+          )}
+          
+          {isReplacementAfterWicket && (
+            <div className="mt-3 p-2 bg-cricket-accent/10 rounded-lg inline-block">
+              <p className="font-medium text-cricket-accent">
+                Wicket! Select new batsman
               </p>
             </div>
           )}
@@ -112,7 +130,7 @@ const PlayerSelection = () => {
             </div>
           )}
           
-          {needsNonStriker && (
+          {needsNonStriker && !isReplacementAfterWicket && (
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700 flex items-center">
                 <UserCheck className="h-4 w-4 mr-2 text-cricket-dark-green" />
@@ -137,7 +155,7 @@ const PlayerSelection = () => {
             </div>
           )}
           
-          {needsBowler && (
+          {needsBowler && !isReplacementAfterWicket && (
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700 flex items-center">
                 <Swords className="h-4 w-4 mr-2 text-cricket-accent" />
@@ -166,7 +184,7 @@ const PlayerSelection = () => {
             disabled={!canConfirm}
             className="w-full bg-cricket-dark-green hover:bg-cricket-dark-green/90 text-white py-2 rounded-lg transition-all duration-200"
           >
-            Confirm
+            {isReplacementAfterWicket ? 'Continue Play' : 'Confirm'}
           </Button>
         </div>
       </Card>

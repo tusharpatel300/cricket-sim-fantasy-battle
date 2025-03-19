@@ -124,12 +124,20 @@ const cricketReducer = (state: CricketState, action: CricketAction): CricketStat
     }
     
     case 'SELECT_STRIKER': {
+      // Determine the appropriate match step to return to
+      // If we're replacing a batsman after a wicket during innings, return to the innings screen
+      const newMatchStep = state.match.currentBowler && 
+                          (state.matchStep === 'firstInnings' || state.matchStep === 'secondInnings') ?
+                          (state.match.currentInnings === 1 ? 'firstInnings' : 'secondInnings') :
+                          state.matchStep;
+      
       return {
         ...state,
         match: {
           ...state.match,
           striker: action.payload,
         },
+        matchStep: newMatchStep,
       };
     }
     
