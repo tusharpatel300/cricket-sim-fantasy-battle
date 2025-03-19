@@ -124,12 +124,15 @@ const cricketReducer = (state: CricketState, action: CricketAction): CricketStat
     }
     
     case 'SELECT_STRIKER': {
-      // Determine the appropriate match step to return to
-      // If we're replacing a batsman after a wicket during innings, return to the innings screen
-      const newMatchStep = state.match.currentBowler && 
-                          (state.matchStep === 'firstInnings' || state.matchStep === 'secondInnings') ?
-                          (state.match.currentInnings === 1 ? 'firstInnings' : 'secondInnings') :
-                          state.matchStep;
+      // Determine if we need to go back to the innings screen
+      // After a wicket, if we already have a bowler and non-striker, 
+      // we should return directly to the innings screen
+      let newMatchStep = state.matchStep;
+      
+      if (state.match.currentBowler && state.match.nonStriker) {
+        // We're replacing a batsman after a wicket
+        newMatchStep = state.match.currentInnings === 1 ? 'firstInnings' : 'secondInnings';
+      }
       
       return {
         ...state,

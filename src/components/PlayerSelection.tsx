@@ -27,6 +27,16 @@ const PlayerSelection = () => {
   }
   
   const handleConfirm = () => {
+    // When replacing a batsman after wicket
+    if (isReplacementAfterWicket && selectedStrikerId) {
+      const striker = match.battingTeam.players.find(p => p.id.toString() === selectedStrikerId);
+      if (striker) {
+        dispatch({ type: 'SELECT_STRIKER', payload: striker });
+      }
+      return; // Exit early, the reducer will handle the flow back to the innings screen
+    }
+    
+    // Standard flow for initial player selection
     if (match.striker === undefined && selectedStrikerId) {
       const striker = match.battingTeam.players.find(p => p.id.toString() === selectedStrikerId);
       if (striker) {
