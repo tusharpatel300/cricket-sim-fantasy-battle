@@ -3,7 +3,7 @@ import React from 'react';
 import { useCricket } from '@/contexts/CricketContext';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Cricket, RotateCcw, Shield } from 'lucide-react';
+import { RotateCcw, Shield, Trophy } from 'lucide-react';
 
 const MatchSetup = () => {
   const { state, dispatch } = useCricket();
@@ -32,7 +32,7 @@ const MatchSetup = () => {
             onClick={() => handleBattingChoice('A')}
             className="flex flex-col items-center bg-cricket-dark-green hover:bg-cricket-dark-green/90 text-white rounded-xl py-6 transition-all transform hover:scale-105"
           >
-            <Cricket className="h-8 w-8 mb-2" />
+            <Trophy className="h-8 w-8 mb-2" />
             <span className="text-sm font-medium">Bat</span>
           </Button>
           
