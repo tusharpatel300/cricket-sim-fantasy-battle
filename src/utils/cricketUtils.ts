@@ -59,6 +59,50 @@ export interface Match {
 
 export type DeliveryOutcome = 'dot' | '1' | '2' | '3' | '4' | '6' | 'wicket' | 'wide' | 'no-ball';
 
+// Function to create a team from Excel data
+export const createTeamFromExcelData = (teamName: string, teamData: any[], headers: string[]): Team => {
+  const players: Player[] = teamData.map((row, index) => {
+    // Map Excel columns to player properties
+    // Headers order: ID, Player Name, Power, Defense, Timing, Running, Accuracy, Intelligence, Variation, Line & Length
+    return {
+      id: row[0] || index + 1, // Use ID from Excel or fallback to index
+      name: row[1] || `Player ${index + 1}`, // Use name from Excel or fallback
+      battingStats: {
+        power: row[2] || 50,
+        defense: row[3] || 50,
+        timing: row[4] || 50,
+        running: row[5] || 50,
+      },
+      bowlingStats: {
+        accuracy: row[6] || 50,
+        intelligence: row[7] || 50,
+        variation: row[8] || 50,
+        lineAndLength: row[9] || 50,
+      },
+      isOut: false,
+      runsScored: 0,
+      ballsFaced: 0,
+      fours: 0,
+      sixes: 0,
+      wicketsTaken: 0,
+      runsConceded: 0,
+      oversBowled: 0,
+      ballsBowled: 0,
+      maidens: 0,
+    };
+  });
+
+  return {
+    name: teamName,
+    players,
+    totalRuns: 0,
+    wickets: 0,
+    extras: 0,
+    overs: 0,
+    balls: 0,
+  };
+};
+
 // Helper function to generate a random delivery outcome
 export const generateRandomOutcome = (): DeliveryOutcome => {
   const outcomes: DeliveryOutcome[] = ['dot', '1', '2', '3', '4', '6', 'wicket', 'wide', 'no-ball'];
@@ -302,9 +346,12 @@ export const processDelivery = (
 };
 
 export const getAvailableBatsmen = (team: Team): Player[] => {
+  // Only return players who haven't batted yet (not out and not the current batsmen)
   return team.players.filter(player => !player.isOut && 
     player.id !== (team as any).striker?.id && 
-    player.id !== (team as any).nonStriker?.id);
+    player.id !== (team as any).nonStriker?.id &&
+    // Also filter out players who have already batted (check if they've faced any balls)
+    (player.ballsFaced === undefined || player.ballsFaced === 0));
 };
 
 export const getAvailableBowlers = (team: Team, match: Match, previousBowler?: Player): Player[] => {

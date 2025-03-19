@@ -6,13 +6,14 @@ import {
   Player, 
   DeliveryOutcome, 
   processDelivery, 
-  initializeTeams 
+  initializeTeams,
+  createTeamFromExcelData
 } from '../utils/cricketUtils';
 
 // Define the state type
 interface CricketState {
   match: Match;
-  matchStep: 'teamSelection' | 'tossSelection' | 'batting' | 'firstInnings' | 'secondInnings' | 'result';
+  matchStep: 'fileUpload' | 'teamSelection' | 'tossSelection' | 'batting' | 'firstInnings' | 'secondInnings' | 'result';
   isLoading: boolean;
   error: string | null;
 }
@@ -20,6 +21,7 @@ interface CricketState {
 // Define the action types
 type CricketAction =
   | { type: 'INITIALIZE_MATCH' }
+  | { type: 'INITIALIZE_MATCH_WITH_DATA', payload: any }
   | { type: 'SET_BATTING_TEAM', payload: 'A' | 'B' }
   | { type: 'SELECT_STRIKER', payload: Player }
   | { type: 'SELECT_NON_STRIKER', payload: Player }
@@ -41,7 +43,7 @@ const initialState: CricketState = {
     isMatchStarted: false,
     isMatchCompleted: false,
   },
-  matchStep: 'teamSelection',
+  matchStep: 'fileUpload', // Start with file upload step
   isLoading: false,
   error: null,
 };
@@ -59,6 +61,32 @@ const cricketReducer = (state: CricketState, action: CricketAction): CricketStat
   switch (action.type) {
     case 'INITIALIZE_MATCH': {
       const { teamA, teamB } = initializeTeams();
+      return {
+        ...state,
+        match: {
+          ...state.match,
+          teamA,
+          teamB,
+          isMatchStarted: false,
+          isMatchCompleted: false,
+          currentInnings: 1,
+          target: undefined,
+          result: undefined,
+          striker: undefined,
+          nonStriker: undefined,
+          currentBowler: undefined,
+        },
+        matchStep: 'teamSelection',
+        error: null,
+      };
+    }
+    
+    case 'INITIALIZE_MATCH_WITH_DATA': {
+      const { headers, teamA: teamAData, teamB: teamBData } = action.payload;
+      
+      const teamA = createTeamFromExcelData('Team A', teamAData, headers);
+      const teamB = createTeamFromExcelData('Team B', teamBData, headers);
+      
       return {
         ...state,
         match: {
@@ -144,7 +172,7 @@ const cricketReducer = (state: CricketState, action: CricketAction): CricketStat
         // If innings changed from 1 to 2
         matchStep = 'batting';
       } else if (updatedMatch.striker === undefined && !updatedMatch.isMatchCompleted) {
-        // If we need a new batsman
+        // If we need a new batsman (after wicket)
         matchStep = 'batting';
       } else if (updatedMatch.currentBowler === undefined && !updatedMatch.isMatchCompleted) {
         // If we need a new bowler (end of over)

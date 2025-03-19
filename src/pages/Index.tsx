@@ -6,19 +6,17 @@ import MatchSetup from '@/components/MatchSetup';
 import PlayerSelection from '@/components/PlayerSelection';
 import InningsControl from '@/components/InningsControl';
 import MatchResult from '@/components/MatchResult';
+import FileUpload from '@/components/FileUpload';
 
 const Index = () => {
   const { state, dispatch } = useCricket();
   const { matchStep } = state;
   
-  // Initialize match data when component mounts
-  useEffect(() => {
-    dispatch({ type: 'INITIALIZE_MATCH' });
-  }, [dispatch]);
-  
   // Render different components based on match step
   const renderMatchStep = () => {
     switch (matchStep) {
+      case 'fileUpload':
+        return <FileUpload />;
       case 'teamSelection':
         return <TeamSelection />;
       case 'tossSelection':
