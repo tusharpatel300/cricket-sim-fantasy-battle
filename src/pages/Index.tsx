@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useCricket } from '@/contexts/CricketContext';
 import TeamSelection from '@/components/TeamSelection';
 import MatchSetup from '@/components/MatchSetup';
@@ -7,9 +7,10 @@ import PlayerSelection from '@/components/PlayerSelection';
 import InningsControl from '@/components/InningsControl';
 import MatchResult from '@/components/MatchResult';
 import FileUpload from '@/components/FileUpload';
+import { CricketProvider } from '@/contexts/CricketContext';
 
-const Index = () => {
-  const { state, dispatch } = useCricket();
+const IndexContent = () => {
+  const { state } = useCricket();
   const { matchStep } = state;
   
   // Render different components based on match step
@@ -37,6 +38,14 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-white to-cricket-pitch/20">
       {renderMatchStep()}
     </div>
+  );
+};
+
+const Index = () => {
+  return (
+    <CricketProvider>
+      <IndexContent />
+    </CricketProvider>
   );
 };
 
