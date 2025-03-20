@@ -60,7 +60,8 @@ const PlayerSelection = () => {
   };
   
   const availableBatsmen = getAvailableBatsmen(match.battingTeam);
-  const availableBowlers = getAvailableBowlers(match.bowlingTeam, match, match.currentBowler);
+  // Use the updated getAvailableBowlers function that handles the "no consecutive overs" rule
+  const availableBowlers = getAvailableBowlers(match.bowlingTeam, match);
   
   const needsStriker = match.striker === undefined;
   const needsNonStriker = match.nonStriker === undefined;
@@ -181,7 +182,7 @@ const PlayerSelection = () => {
                 <SelectContent>
                   {availableBowlers.map(player => (
                     <SelectItem key={player.id} value={player.id.toString()}>
-                      {player.name} ({player.oversBowled || 0}/4 overs)
+                      {player.name} ({player.oversBowled || 0}/{match.maxOversPerBowler} overs)
                     </SelectItem>
                   ))}
                 </SelectContent>

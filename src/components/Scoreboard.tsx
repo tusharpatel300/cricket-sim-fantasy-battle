@@ -86,10 +86,50 @@ export const Scoreboard = () => {
         <div className="mt-2 text-sm">
           <p className="text-gray-700">
             Bowling: {match.currentBowler.name} {match.currentBowler.wicketsTaken || 0}/{match.currentBowler.runsConceded || 0} 
-            ({match.currentBowler.oversBowled || 0})
+            ({match.currentBowler.oversBowled?.toFixed(1) || 0}/{match.maxOversPerBowler})
           </p>
         </div>
       )}
+      
+      {/* Bowler Statistics */}
+      <div className="mt-4">
+        <p className="text-sm font-medium text-gray-700 mb-2">Bowling Figures:</p>
+        <div className="bg-gray-50 p-2 rounded-lg text-xs overflow-auto max-h-32">
+          <table className="w-full">
+            <thead>
+              <tr className="text-left border-b border-gray-200">
+                <th className="py-1 pr-2">Bowler</th>
+                <th className="py-1 px-2 text-center">O</th>
+                <th className="py-1 px-2 text-center">R</th>
+                <th className="py-1 px-2 text-center">W</th>
+                <th className="py-1 pl-2 text-center">Econ</th>
+              </tr>
+            </thead>
+            <tbody>
+              {match.bowlingTeam.players
+                .filter(player => (player.ballsBowled || 0) > 0)
+                .sort((a, b) => (b.wicketsTaken || 0) - (a.wicketsTaken || 0))
+                .map(bowler => {
+                  const overs = bowler.oversBowled || 0;
+                  const runs = bowler.runsConceded || 0;
+                  const wickets = bowler.wicketsTaken || 0;
+                  const balls = bowler.ballsBowled || 0;
+                  const economy = balls > 0 ? (runs / (balls / 6)).toFixed(2) : "0.00";
+                  
+                  return (
+                    <tr key={bowler.id} className="border-b border-gray-100">
+                      <td className="py-1 pr-2">{bowler.name}</td>
+                      <td className="py-1 px-2 text-center">{overs.toFixed(1)}</td>
+                      <td className="py-1 px-2 text-center">{runs}</td>
+                      <td className="py-1 px-2 text-center">{wickets}</td>
+                      <td className="py-1 pl-2 text-center">{economy}</td>
+                    </tr>
+                  );
+                })}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </Card>
   );
 };

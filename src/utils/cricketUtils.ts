@@ -53,6 +53,7 @@ export interface Match {
   striker?: Player;
   nonStriker?: Player;
   currentBowler?: Player;
+  previousBowlerId?: number; // Added to track the previous bowler
   target?: number;
   result?: string;
 }
@@ -128,14 +129,13 @@ export const canBowl = (
   match: Match, 
   previousBowler?: Player
 ): boolean => {
-  const oversBowled = player.oversBowled || 0;
-  
   // Check if the player has bowled the maximum allowed overs
+  const oversBowled = player.oversBowled || 0;
   if (oversBowled >= match.maxOversPerBowler) {
     return false;
   }
   
-  // Check if the player was the previous bowler
+  // Check if the player was the previous bowler (no consecutive overs)
   if (previousBowler && player.id === previousBowler.id) {
     return false;
   }
@@ -226,13 +226,6 @@ export const processDelivery = (
       break;
       
     case 'wide':
-      // For wide/no-ball: Only add to extras and team total, No ball counted, No individual stats updated
-      battingTeam.totalRuns = (battingTeam.totalRuns || 0) + 1;
-      battingTeam.extras = (battingTeam.extras || 0) + 1;
-      currentBowler.runsConceded = (currentBowler.runsConceded || 0) + 1;
-      isLegalDelivery = false; // This is an illegal delivery
-      break;
-      
     case 'no-ball':
       // For wide/no-ball: Only add to extras and team total, No ball counted, No individual stats updated
       battingTeam.totalRuns = (battingTeam.totalRuns || 0) + 1;
@@ -290,8 +283,12 @@ export const processDelivery = (
       updatedMatch.nonStriker = temp;
     }
     
-    // Current bowler has completed an over and needs to be changed
+    // Store the current bowler as previous bowler before setting to undefined
+    // This ensures we don't select the same bowler for consecutive overs
+    const previousBowler = { ...currentBowler };
     updatedMatch.currentBowler = undefined;
+    // Store the previous bowler ID in the match to enforce the "no consecutive overs" rule
+    updatedMatch.previousBowlerId = previousBowler.id;
   }
 
   // Check if innings is complete
@@ -378,8 +375,24 @@ export const getAvailableBatsmen = (team: Team): Player[] => {
     (player.ballsFaced === undefined || player.ballsFaced === 0));
 };
 
-export const getAvailableBowlers = (team: Team, match: Match, previousBowler?: Player): Player[] => {
-  return team.players.filter(player => canBowl(player, match, previousBowler));
+export const getAvailableBowlers = (team: Team, match: Match): Player[] => {
+  // Get previous bowler if available
+  const previousBowlerId = match.previousBowlerId;
+  
+  return team.players.filter(player => {
+    // Check if player has reached max overs
+    const oversBowled = player.oversBowled || 0;
+    if (oversBowled >= match.maxOversPerBowler) {
+      return false;
+    }
+    
+    // Check if player was the previous bowler (can't bowl consecutive overs)
+    if (previousBowlerId && player.id === previousBowlerId) {
+      return false;
+    }
+    
+    return true;
+  });
 };
 
 export const initializeTeams = (): { teamA: Team; teamB: Team } => {
