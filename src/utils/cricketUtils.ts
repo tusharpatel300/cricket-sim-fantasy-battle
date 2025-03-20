@@ -156,8 +156,8 @@ export const processDelivery = (
 
   const battingTeam = { ...updatedMatch.battingTeam };
   const bowlingTeam = { ...updatedMatch.bowlingTeam };
-  const striker = { ...updatedMatch.striker };
-  const nonStriker = { ...updatedMatch.nonStriker };
+  let striker = { ...updatedMatch.striker };
+  let nonStriker = { ...updatedMatch.nonStriker };
   const currentBowler = { ...updatedMatch.currentBowler };
 
   let isLegalDelivery = true;
@@ -273,6 +273,13 @@ export const processDelivery = (
   
   updatedMatch.battingTeam = battingTeam;
   updatedMatch.bowlingTeam = bowlingTeam;
+
+  // Only update striker/non-striker in the match object if they haven't already been changed
+  // For 1 and 3 runs we already swapped them above
+  if (outcome !== '1' && outcome !== '3' && outcome !== 'wicket') {
+    updatedMatch.striker = striker;
+    updatedMatch.nonStriker = nonStriker;
+  }
 
   // Check if over is complete (6 legal deliveries)
   if (isLegalDelivery && battingTeam.balls && battingTeam.balls % 6 === 0) {
