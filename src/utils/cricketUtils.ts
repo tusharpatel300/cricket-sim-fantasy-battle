@@ -164,9 +164,12 @@ export const processDelivery = (
 
   switch (outcome) {
     case 'dot':
+      // For dot ball: Only add 1 ball to striker's count
       striker.ballsFaced = (striker.ballsFaced || 0) + 1;
       break;
+      
     case '1':
+      // For 1 run: Add 1 run to striker's score, Add 1 ball to striker's count, Swap striker and non-striker
       striker.runsScored = (striker.runsScored || 0) + 1;
       striker.ballsFaced = (striker.ballsFaced || 0) + 1;
       battingTeam.totalRuns = (battingTeam.totalRuns || 0) + 1;
@@ -175,13 +178,17 @@ export const processDelivery = (
       updatedMatch.striker = nonStriker;
       updatedMatch.nonStriker = striker;
       break;
+      
     case '2':
+      // For 2 runs: Add 2 runs to striker's score, Add 1 ball to striker's count
       striker.runsScored = (striker.runsScored || 0) + 2;
       striker.ballsFaced = (striker.ballsFaced || 0) + 1;
       battingTeam.totalRuns = (battingTeam.totalRuns || 0) + 2;
       currentBowler.runsConceded = (currentBowler.runsConceded || 0) + 2;
       break;
+      
     case '3':
+      // For 3 runs: Add 3 runs to striker's score, Add 1 ball to striker's count, Swap striker and non-striker
       striker.runsScored = (striker.runsScored || 0) + 3;
       striker.ballsFaced = (striker.ballsFaced || 0) + 1;
       battingTeam.totalRuns = (battingTeam.totalRuns || 0) + 3;
@@ -190,38 +197,48 @@ export const processDelivery = (
       updatedMatch.striker = nonStriker;
       updatedMatch.nonStriker = striker;
       break;
+      
     case '4':
+      // For 4 runs: Add 4 runs to striker's score, Add 1 ball to striker's count, Increment fours count
       striker.runsScored = (striker.runsScored || 0) + 4;
       striker.ballsFaced = (striker.ballsFaced || 0) + 1;
       striker.fours = (striker.fours || 0) + 1;
       battingTeam.totalRuns = (battingTeam.totalRuns || 0) + 4;
       currentBowler.runsConceded = (currentBowler.runsConceded || 0) + 4;
       break;
+      
     case '6':
+      // For 6 runs: Add 6 runs to striker's score, Add 1 ball to striker's count, Increment sixes count
       striker.runsScored = (striker.runsScored || 0) + 6;
       striker.ballsFaced = (striker.ballsFaced || 0) + 1;
       striker.sixes = (striker.sixes || 0) + 1;
       battingTeam.totalRuns = (battingTeam.totalRuns || 0) + 6;
       currentBowler.runsConceded = (currentBowler.runsConceded || 0) + 6;
       break;
+      
     case 'wicket':
+      // For wicket: Add 1 ball to striker's count, Mark batsman as out, Increment team wickets
       striker.ballsFaced = (striker.ballsFaced || 0) + 1;
       striker.isOut = true;
       battingTeam.wickets = (battingTeam.wickets || 0) + 1;
       currentBowler.wicketsTaken = (currentBowler.wicketsTaken || 0) + 1;
       updatedMatch.striker = undefined; // New batsman will be selected
       break;
+      
     case 'wide':
+      // For wide/no-ball: Only add to extras and team total, No ball counted, No individual stats updated
       battingTeam.totalRuns = (battingTeam.totalRuns || 0) + 1;
       battingTeam.extras = (battingTeam.extras || 0) + 1;
       currentBowler.runsConceded = (currentBowler.runsConceded || 0) + 1;
-      isLegalDelivery = false;
+      isLegalDelivery = false; // This is an illegal delivery
       break;
+      
     case 'no-ball':
+      // For wide/no-ball: Only add to extras and team total, No ball counted, No individual stats updated
       battingTeam.totalRuns = (battingTeam.totalRuns || 0) + 1;
       battingTeam.extras = (battingTeam.extras || 0) + 1;
       currentBowler.runsConceded = (currentBowler.runsConceded || 0) + 1;
-      isLegalDelivery = false;
+      isLegalDelivery = false; // This is an illegal delivery
       break;
   }
 
