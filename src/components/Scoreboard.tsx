@@ -16,8 +16,17 @@ export const Scoreboard = () => {
   const innings = match.currentInnings;
   const { totalRuns = 0, wickets = 0, overs = 0, extras = 0 } = match.battingTeam;
   
-  // Format overs (e.g., 4.3 for 4 overs and 3 balls)
-  const formattedOvers = overs.toFixed(1).replace('.0', '');
+  // Format overs correctly in cricket notation (e.g., 4.3 for 4 overs and 3 balls)
+  // In cricket, balls are counted as 1-6 for display, but stored as 0.1-0.5 internally
+  const completedOvers = Math.floor(overs);
+  const ballsInCurrentOver = Math.round((overs - completedOvers) * 10);
+  const formattedOvers = `${completedOvers}${ballsInCurrentOver > 0 ? '.' + ballsInCurrentOver : ''}`;
+  
+  // Calculate remaining overs in the same cricket notation
+  const remainingOvers = match.overs - overs;
+  const remainingCompletedOvers = Math.floor(remainingOvers);
+  const remainingBallsInOver = Math.round((remainingOvers - remainingCompletedOvers) * 10);
+  const formattedRemainingOvers = `${remainingCompletedOvers}${remainingBallsInOver > 0 ? '.' + remainingBallsInOver : ''}`;
   
   return (
     <Card className="p-5 bg-white/90 backdrop-blur-lg shadow-lg border border-gray-100 rounded-xl">
@@ -41,7 +50,7 @@ export const Scoreboard = () => {
             <div className="flex items-center justify-end mt-1">
               <Target className="h-4 w-4 mr-1 text-cricket-accent" />
               <p className="text-sm font-medium">
-                Need {match.target - totalRuns} from {(match.overs - overs).toFixed(1).replace('.0', '')} overs
+                Need {match.target - totalRuns} from {formattedRemainingOvers} overs
               </p>
             </div>
           )}
@@ -64,7 +73,7 @@ export const Scoreboard = () => {
           <p className="text-gray-600">Extras: {extras}</p>
           <p className="text-gray-600">
             {match.overs - overs > 0 
-              ? `${match.overs - overs} overs remaining` 
+              ? `${formattedRemainingOvers} overs remaining` 
               : 'Last over'}
           </p>
         </div>
@@ -86,7 +95,7 @@ export const Scoreboard = () => {
         <div className="mt-2 text-sm">
           <p className="text-gray-700">
             Bowling: {match.currentBowler.name} {match.currentBowler.wicketsTaken || 0}/{match.currentBowler.runsConceded || 0} 
-            ({match.currentBowler.oversBowled?.toFixed(1) || 0}/{match.maxOversPerBowler})
+            ({formatBowlerOvers(match.currentBowler.oversBowled || 0)}/{match.maxOversPerBowler})
           </p>
         </div>
       )}
@@ -119,7 +128,7 @@ export const Scoreboard = () => {
                   return (
                     <tr key={bowler.id} className="border-b border-gray-100">
                       <td className="py-1 pr-2">{bowler.name}</td>
-                      <td className="py-1 px-2 text-center">{overs.toFixed(1)}</td>
+                      <td className="py-1 px-2 text-center">{formatBowlerOvers(overs)}</td>
                       <td className="py-1 px-2 text-center">{runs}</td>
                       <td className="py-1 px-2 text-center">{wickets}</td>
                       <td className="py-1 pl-2 text-center">{economy}</td>
@@ -132,4 +141,12 @@ export const Scoreboard = () => {
       </div>
     </Card>
   );
+};
+
+// Helper function to format bowler overs in cricket notation
+// Example: 1.3 means 1 over and 3 balls
+const formatBowlerOvers = (overs: number): string => {
+  const completedOvers = Math.floor(overs);
+  const ballsInCurrentOver = Math.round((overs - completedOvers) * 10);
+  return `${completedOvers}${ballsInCurrentOver > 0 ? '.' + ballsInCurrentOver : ''}`;
 };

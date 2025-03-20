@@ -6,6 +6,13 @@ import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Trophy, RefreshCw } from 'lucide-react';
 
+// Helper function to format overs in cricket notation
+const formatOvers = (overs: number = 0): string => {
+  const completedOvers = Math.floor(overs);
+  const ballsInCurrentOver = Math.round((overs - completedOvers) * 10);
+  return `${completedOvers}${ballsInCurrentOver > 0 ? '.' + ballsInCurrentOver : ''}`;
+};
+
 const MatchResult = () => {
   const { state, dispatch } = useCricket();
   const { match } = state;
@@ -60,7 +67,7 @@ const MatchResult = () => {
           <tfoot>
             <tr>
               <td colSpan={6} className="pt-2 text-xs">
-                Extras: {team.extras || 0} • Total: {team.totalRuns || 0}/{team.wickets || 0} ({team.overs?.toFixed(1) || 0} Ov)
+                Extras: {team.extras || 0} • Total: {team.totalRuns || 0}/{team.wickets || 0} ({formatOvers(team.overs)} Ov)
               </td>
             </tr>
           </tfoot>
@@ -92,7 +99,7 @@ const MatchResult = () => {
                 return (
                   <tr key={player.id}>
                     <td>{player.name}</td>
-                    <td className="text-right">{player.oversBowled?.toFixed(1) || 0}</td>
+                    <td className="text-right">{formatOvers(player.oversBowled)}</td>
                     <td className="text-right">{player.runsConceded || 0}</td>
                     <td className="text-right">{player.wicketsTaken || 0}</td>
                     <td className="text-right">{economy}</td>

@@ -8,6 +8,13 @@ import { CircleDot, Play, Clock, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { DeliveryOutcome, generateRandomOutcome } from '@/utils/cricketUtils';
 
+// Helper function to format overs in cricket notation
+const formatOvers = (overs: number = 0): string => {
+  const completedOvers = Math.floor(overs);
+  const ballsInCurrentOver = Math.round((overs - completedOvers) * 10);
+  return `${completedOvers}${ballsInCurrentOver > 0 ? '.' + ballsInCurrentOver : ''}`;
+};
+
 const InningsControl = () => {
   const { state, dispatch } = useCricket();
   const { match } = state;
@@ -82,7 +89,7 @@ const InningsControl = () => {
           <div>
             <h3 className="font-medium text-gray-800">Current Over</h3>
             <p className="text-sm text-gray-600">
-              Bowler: {match.currentBowler.name}
+              Bowler: {match.currentBowler.name} ({formatOvers(match.currentBowler.oversBowled || 0)})
             </p>
           </div>
           
